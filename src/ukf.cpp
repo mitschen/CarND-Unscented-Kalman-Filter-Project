@@ -35,6 +35,8 @@ UKF::UKF()
   , weights_(n_sigma_pts_)
   {
 
+
+
   // initial state vector
   // will be initialized with the first measurement values
   x_.setZero();
@@ -127,6 +129,9 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       Prediction(dt);
       UpdateLidar(meas_package);
    }
+   time_us_=meas_package.timestamp_;
+
+   std::cout<<"StateVectorX "<<std::endl<<x_<<std::endl;
 }
 
 /**

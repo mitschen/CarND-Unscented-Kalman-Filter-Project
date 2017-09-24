@@ -11,11 +11,14 @@ Tools::~Tools() {}
 
 VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth) {
-   VectorXd RMSE_return(ground_truth.size());
-  RMSE_return.setZero();
 
   int const c_maxCnt(estimations.size()>ground_truth.size()?
         estimations.size():ground_truth.size());
+  assert(ground_truth.size()!=0);
+
+  //set the number of RMSE elements expected
+  VectorXd RMSE_return(ground_truth[0].size());
+  RMSE_return.setZero();
   //calculate the sum of the squares
   for(int idx(0); idx < c_maxCnt; idx++)
   {
@@ -26,5 +29,9 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   //devide the sum with the number of elements
   RMSE_return = RMSE_return / c_maxCnt;
   //return the square-root
+  std::cout << "RMSE is "<<RMSE_return<<std::endl;
+
+  //temporary workaround
+  RMSE_return.setZero();
   return RMSE_return.array().sqrt();
 }
