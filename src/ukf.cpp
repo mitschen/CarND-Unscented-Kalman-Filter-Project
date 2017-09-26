@@ -25,14 +25,18 @@ UKF::UKF()
   , R_radar_(3,3)
   , R_laser_(2,2)
   , time_us_(0LL)
-  , std_a_(30)
-  , std_yawdd_(30)
+  , std_a_(2) //started with 30
+  , std_yawdd_(20) //started with 30
   , std_laspx_(0.15)
   , std_laspy_(0.15)
   , std_radr_(0.3)
   , std_radphi_(0.03)
   , std_radrd_(0.3)
   , weights_(n_sigma_pts_)
+  , radar_chi(4)
+  , lidar_chi(4)
+  , radar_nis_cnt(5)
+  , lidar_nis_cnt(5)
   {
 
 
@@ -86,6 +90,11 @@ UKF::UKF()
   //initialize the weights
   weights_.fill(0.5/(n_aug_+lambda_));
   weights_(0) = lambda_/(lambda_+n_aug_);
+
+  radar_chi << 0.352, 0.584, 6.251, 7.815;
+  lidar_chi << 0.103, 0.211, 4.605, 5.991;
+  radar_nis_cnt.fill(0);
+  lidar_nis_cnt.fill(0);
 }
 
 UKF::~UKF() {}
@@ -136,7 +145,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
    }
    time_us_=meas_package.timestamp_;
 
-   std::cout<<"StateVectorX "<<std::endl<<x_<<std::endl;
+//   std::cout<<"StateVectorX "<<std::endl<<x_<<std::endl;
 }
 
 /**
@@ -357,7 +366,20 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
 
 
     double const NIS(z_diff.transpose()*S_inverse*z_diff);
-    std::cout << "NIS (laser): " << NIS << std::endl;
+
+    for(int i(3); i>=0; i--)
+    {
+      if(NIS>=lidar_chi(i))
+      {
+        lidar_nis_cnt(i)++; //increase the number of certain class
+      }
+    }
+    lidar_nis_cnt(4)++; //increase the total number of hits
+    double fract(100./lidar_nis_cnt(4));
+    VectorXd ratio = lidar_nis_cnt.head(4) * fract;
+    std::cout << "NIS (lidar): " << NIS << std::endl
+      <<"NIS distribution "<< lidar_nis_cnt << std::endl
+      <<"NIS Ratio "<<ratio<<std::endl;
 }
 
 /**
@@ -466,5 +488,18 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 
   double const NIS(z_diff.transpose()*S_inverse*z_diff);
 
-  std::cout << "NIS (radar): " << NIS << std::endl;
+  for(int i(3); i>=0; i--)
+  {
+    if(NIS>=radar_chi(i))
+    {
+      radar_nis_cnt(i)++; //increase the number of certain class
+    }
+  }
+  radar_nis_cnt(4)++; //increase the total number of hits
+  double fract(100./radar_nis_cnt(4));
+      VectorXd ratio = radar_nis_cnt.head(4) * fract;
+  std::cout << "NIS (radar): " << NIS << std::endl
+    <<"NIS distribution "<< radar_nis_cnt << std::endl
+    <<"Ratio "<<ratio<<std::endl;
+
 }

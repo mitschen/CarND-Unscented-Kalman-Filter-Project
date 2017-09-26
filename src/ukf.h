@@ -74,7 +74,11 @@ public:
   ///* Weights of sigma points
   VectorXd weights_;
 
-
+  ///* Some NIS constants of the chi-distr
+  VectorXd radar_chi; //3 degrees of freedom
+  VectorXd lidar_chi; //2 degrees of freedom
+  VectorXd radar_nis_cnt;
+  VectorXd lidar_nis_cnt;
 
   /**
    * Constructor
