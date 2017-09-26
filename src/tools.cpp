@@ -29,9 +29,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   //devide the sum with the number of elements
   RMSE_return = RMSE_return / c_maxCnt;
   //return the square-root
-  std::cout << "RMSE is "<<RMSE_return<<std::endl;
+//  std::cout << "RMSE is "<<std::endl<<RMSE_return<<std::endl<<"**********"<<std::endl;
 
-  //temporary workaround
-  RMSE_return.setZero();
   return RMSE_return.array().sqrt();
 }
