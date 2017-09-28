@@ -26,7 +26,7 @@ UKF::UKF()
   , R_laser_(2,2)
   , time_us_(0LL)
   , std_a_(2) //started with 30
-  , std_yawdd_(20) //started with 30
+  , std_yawdd_(M_PI/180.0*30) //started with 30
   , std_laspx_(0.15)
   , std_laspy_(0.15)
   , std_radr_(0.3)
@@ -47,29 +47,20 @@ UKF::UKF()
 
 //  // initial covariance matrix
 //  P_.setIdentity();
-  P_ <<     0.0043,   -0.0013,    0.0030,   -0.0022,   -0.0020,
-          -0.0013,    0.0077,    0.0011,    0.0071,    0.0060,
-           0.0030,    0.0011,    0.0054,    0.0007,    0.0008,
-          -0.0022,    0.0071,    0.0007,    0.0098,    0.0100,
-          -0.0020,    0.0060,    0.0008,    0.0100,    0.0123;
+  //Take the lidar data only.
+  //Identify the diffs between the timesteps t and t+1
+  //calculate the average
+  //use the average as parameter for the covariance
+  P_.setZero();
+  P_(0,0) = 0.12;
+  P_(1,1) = 0.12;
+  P_(2,2) = 0.18;
+  P_(3,3) = 0.04;
+  P_(4,4) = 0.01;
 
   //set the sigma ptr prediction to zero
   Xsig_pred_.setZero();
 
-//  // Process noise standard deviation longitudinal acceleration in m/s^2
-//  std_a_ = 30;
-//  // Process noise standard deviation yaw acceleration in rad/s^2
-//  std_yawdd_ = 30;
-//  // Laser measurement noise standard deviation position1 in m
-//  std_laspx_ = 0.15;
-//  // Laser measurement noise standard deviation position2 in m
-//  std_laspy_ = 0.15;
-//  // Radar measurement noise standard deviation radius in m
-//  std_radr_ = 0.3;
-//  // Radar measurement noise standard deviation angle in rad
-//  std_radphi_ = 0.03;
-//  // Radar measurement noise standard deviation radius change in m/s
-//  std_radrd_ = 0.3;
 
   /**
   TODO:
